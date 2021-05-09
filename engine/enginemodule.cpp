@@ -415,7 +415,6 @@ engine_get_computer_move(PyObject *self, PyObject *args)
 	int src = 0;
 	int dst = 0;
     GetComputerMove(&src,&dst);
-	std::cout << src << " " << dst << std::endl;
     return Py_BuildValue("ii", src, dst);
 }
 
@@ -485,7 +484,7 @@ static PyMethodDef EngineMethods[] = {
     {"setsidetomove", engine_set_side_to_move, METH_VARARGS, _("Set Side To Move")},
     {"setcomputercolour", engine_set_computer_colour, METH_VARARGS, _("Set Computer Colour")},
     {"flipboard", engine_flip_board, METH_VARARGS, _("Flip Board")},
-	{"getcmove", engine_get_computer_move, METH_VARARGS, _("Flip Board")},
+	{"getcmove", engine_get_computer_move, METH_VARARGS, _("Get Computer Move")},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
