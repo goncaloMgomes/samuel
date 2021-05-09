@@ -251,7 +251,6 @@ class Game:
             # Call the engine to make computers move
             engine.setcomputercolour(self.side_to_move)
             board_position = engine.cmove(str(self.side_to_move))
-            print(engine.getcmove())
             self.board.set_board_position(board_position)
 
             post_board = self.board.get_board_position()
