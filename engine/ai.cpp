@@ -1,7 +1,7 @@
 /*
-    ai.cpp   
-   
-    This file is part of Samuel. 
+    ai.cpp
+
+    This file is part of Samuel.
 
     This file comes from the guicheckers project.
     See http://www.3dkingdoms.com/checkers.htm
@@ -20,7 +20,7 @@
 
     You should have received a copy of the GNU General Public License
     along with Samuel.  If not, see <http://www.gnu.org/licenses/>.
-   
+
  */
 
 #include <iostream>
@@ -70,6 +70,9 @@ void RunningDisplay ( int bestmove, int bSearching);
 void ReplayGame( int nMove, CBoard &Board );
 void LoadAllDatabases( );
 
+int src_cmove;
+int dst_cmove;
+
 // DATABASE FUNCTIONS
 #include "database.cpp"
 
@@ -82,7 +85,7 @@ void LoadAllDatabases( );
 // Quiescence Search... Search all jumps, if there are no jumps, stop the search
 // -------------------------------------------------
 int QuiesceBoard( int color, int ahead, int alpha, int beta )
-    {    
+    {
     int value;
 
     if (color == WHITE)
@@ -102,7 +105,7 @@ int QuiesceBoard( int color, int ahead, int alpha, int beta )
     if (g_Movelist[ahead].nJumps == 0 || (ahead+1) >= MAX_SEARCHDEPTH)
         {
         if (ahead > g_SelectiveDepth)
-            g_SelectiveDepth = ahead-1;        
+            g_SelectiveDepth = ahead-1;
         return g_Boardlist[ahead-1].EvaluateBoard ( ahead-1, alpha, beta);
         }
 
@@ -120,7 +123,7 @@ int QuiesceBoard( int color, int ahead, int alpha, int beta )
         {
             alpha = value;
             if (alpha >= beta )
-            {                
+            {
                 return beta;
             }
         }
@@ -128,18 +131,18 @@ int QuiesceBoard( int color, int ahead, int alpha, int beta )
         {
             beta = value;
             if (alpha >= beta )
-            {                
+            {
                 return alpha;
             }
         }
     }
 
     if (color == WHITE)
-    {        
+    {
         return alpha;
     }
     else
-    {        
+    {
         return beta;
     }
 }
@@ -180,17 +183,17 @@ short ABSearch(int color, int ahead, int depth, int fracDepth, short alpha, shor
 {
     int i, value, nextbest, nM;
     unsigned long indexTT = 0, checksumTT = 0;
-    short temp;    
+    short temp;
 
     // Check to see if move time has run out every 50,000 nodes
     if (nodes > nodes2 + 45000 )
     {
         if ( bCheckerBoard && *g_pbPlayNow )
-        {            
+        {
             return TIMEOUT;
         }
-        if ( g_bStopThinking )        {            
-                        
+        if ( g_bStopThinking )        {
+
             return TIMEOUT;
         }
         endtime = clock();
@@ -198,7 +201,7 @@ short ABSearch(int color, int ahead, int depth, int fracDepth, short alpha, shor
         // If time has run out, we allow running up to 2*Time if g_bEndHard == FALSE and we are still searching a depth
         if ( (endtime - starttime) > (CLOCKS_PER_SEC * fMaxSeconds) )
             if ((endtime - starttime) > (2* CLOCKS_PER_SEC * fMaxSeconds * g_fPanic) || g_bEndHard == TRUE || g_SearchingMove == 0 || abs(g_SearchEval) > 1500 )
-        {                
+        {
                 return TIMEOUT;
         }
         if ( (endtime - lastTime) > (CLOCKS_PER_SEC * .4f) ) {
@@ -209,7 +212,7 @@ short ABSearch(int color, int ahead, int depth, int fracDepth, short alpha, shor
 
     // Use Internal Iterative Deepening to set bestmove if there's no best move
     if (bestmove == NONE && depth > 4 )
-    {        
+    {
         ABSearch( color, ahead, depth-4, 0, alpha, beta, bestmove);
     }
 
@@ -225,13 +228,13 @@ short ABSearch(int color, int ahead, int depth, int fracDepth, short alpha, shor
 
     // If you can't move, you lose the game
     if (g_Movelist[ahead].nMoves == 0)
-    {        
+    {
         if (color == WHITE)
-        {            
+        {
             return -2001+ahead;
         }
         else
-        {            
+        {
             return 2001 - ahead;
         }
     }
@@ -258,7 +261,7 @@ short ABSearch(int color, int ahead, int depth, int fracDepth, short alpha, shor
             {
                 if (abs(g_NewEval-g_SearchEval) >= 26) g_fPanic = 1.8f;
                 if (abs(g_NewEval-g_SearchEval) >= 50) g_fPanic = 2.5f;
-                g_SearchEval = g_NewEval;                
+                g_SearchEval = g_NewEval;
             }
             if (SearchDepth > 11 && !g_bStopThinking) RunningDisplay( bestmove, 1 );
         }
@@ -272,7 +275,7 @@ short ABSearch(int color, int ahead, int depth, int fracDepth, short alpha, shor
         // If the game is over, return a gameover value now
         if (g_Boardlist[ahead].C.WP == 0 || g_Boardlist[ahead].C.BP == 0)
             {
-            bestmove = nM;            
+            bestmove = nM;
             return g_Boardlist[ahead].EvaluateBoard( ahead, -100000, 100000);
             }
 
@@ -312,14 +315,14 @@ short ABSearch(int color, int ahead, int depth, int fracDepth, short alpha, shor
                         case BLACK:
                             if ( g_Boardlist[ahead].eval < alpha && alpha < 1500 && !bForced) {
                             value = ABSearch( (color^3), ahead+1, nextDepth-R, fracDepth+4, alpha-nMargin-1, alpha-nMargin,  nextbest);
-                            
+
                             if (value >= alpha-nMargin) value = -9999;
                             }
                         break;
                         case WHITE:
                         if (g_Boardlist[ahead].eval > beta && beta > -1500 && !bForced ) {
                             value = ABSearch( (color^3), ahead+1, nextDepth-R, fracDepth+4, beta+nMargin, beta+nMargin+1,  nextbest);
-                            
+
                             if (value <= beta+nMargin) value = -9999;
                             }
                         break;
@@ -331,9 +334,9 @@ short ABSearch(int color, int ahead, int depth, int fracDepth, short alpha, shor
                     {
                     // call ABSearch with opposite color & ahead incremented
                     value = ABSearch( (color^3), ahead+1, nextDepth, fracDepth, alpha, beta,  nextbest);
-                    
+
                     if (value == TIMEOUT)
-                    {                        
+                    {
                         return value;
                     }
 
@@ -371,7 +374,7 @@ short ABSearch(int color, int ahead, int depth, int fracDepth, short alpha, shor
                 bestmove = nM;
                 alpha = value;
                 if (alpha >= beta )
-                {                    
+                {
                     return beta;
                 }
             }
@@ -380,18 +383,18 @@ short ABSearch(int color, int ahead, int depth, int fracDepth, short alpha, shor
                 bestmove = nM;
                 beta = value;
                 if (alpha >= beta )
-                {                    
+                {
                     return alpha;
                 }
             }
         } // end for
 
         if (color == WHITE)
-        {            
+        {
             return alpha;
         }
         else
-        {            
+        {
             return beta;
         }
 }
@@ -400,50 +403,50 @@ short ABSearch(int color, int ahead, int depth, int fracDepth, short alpha, shor
 // The computer calculates a move then updates g_CBoard.
 // -------------------------------------------------
 int ComputerMove( char cColor, CBoard &InBoard)
-    {    
+    {
     int LastEval = 0, Eval, nDoMove = NONE, bestmove = NONE;
     CBoard TempBoard;
-    g_ucAge++; // TT    
+    g_ucAge++; // TT
 
     // return if game is over
-    if (InBoard.C.WP == 0) {                
+    if (InBoard.C.WP == 0) {
         gameover = 2;
         return 0;
     }
 
-    if (cColor == BLACK) {        
+    if (cColor == BLACK) {
         g_Movelist[1].FindMovesBlack( InBoard.Sqs, InBoard.C );
     }
-    if (cColor == WHITE) {        
+    if (cColor == WHITE) {
         g_Movelist[1].FindMovesWhite( InBoard.Sqs, InBoard.C );
     }
-    
-    if (g_Movelist[1].nMoves == 0) {                 
+
+    if (g_Movelist[1].nMoves == 0) {
         gameover = 2;
         return 0; // game over
     }
 
     srand( (unsigned int)time(0) );
-	bestmove = rand() % g_Movelist[1].nMoves + 1;   
+	bestmove = rand() % g_Movelist[1].nMoves + 1;
 
     starttime = clock();
     endtime = starttime;
     nodes = 0;
     nodes2 = 0;
     g_SelectiveDepth = 0;
-   
+
     g_SearchEval = pBook->GetMove( InBoard, bestmove );
-    
-    if ( bestmove != NONE) {        
+
+    if ( bestmove != NONE) {
         nDoMove = bestmove;
         SearchDepth = 0; g_SearchingMove = 0;
-        }    
+        }
 
     if ( g_SearchEval == NOVAL )
         {
-        // Make sure the repetition checker has all the values needed.        
+        // Make sure the repetition checker has all the values needed.
         if (!bCheckerBoard) ReplayGame( g_nMoves, InBoard);
-        
+
         // Initialize variables (node count, start time, search depth)
         if (g_MaxDepth < 4) SearchDepth = g_MaxDepth-2;
             else SearchDepth = 0;
@@ -451,24 +454,24 @@ int ComputerMove( char cColor, CBoard &InBoard)
 
         // Iteratively deepen until until the computer runs out of time, or reaches g_MaxDepth ply
         while ( SearchDepth < g_MaxDepth && Eval!=TIMEOUT)
-             {             
+             {
              g_fPanic = 1.0f; // multiplied max time by this, increased when search fails low
              SearchDepth +=2;
 
-             g_Boardlist[0] = InBoard;             
+             g_Boardlist[0] = InBoard;
              g_Boardlist[0].HashKey = TEntry::HashBoard( g_Boardlist[0] );
-             
+
              Eval = ABSearch (cColor, 1, SearchDepth, 0, -4000, 4000,  bestmove);
-             
+
              if (bestmove!=NONE) nDoMove = bestmove;
-             
+
              if (Eval!=TIMEOUT)
              {
-                 g_SearchEval = LastEval = Eval;                 
+                 g_SearchEval = LastEval = Eval;
                  TempBoard = g_Boardlist[0];
                  // Check if there is only one legal move, if so don't keep searching
                  if (g_Movelist[1].nMoves == 1 && g_MaxDepth > 6)
-                 {                    
+                 {
                     Eval = TIMEOUT;
                  }
                  if ( (clock() - starttime) > (CLOCKS_PER_SEC * fMaxSeconds *.75f)  // probably won't get any useful info before timeup
@@ -483,21 +486,21 @@ int ComputerMove( char cColor, CBoard &InBoard)
                  if (abs(g_SearchEval) < 3000) LastEval = g_SearchEval;
                 }
             }
-            
+
         }
-    
-    //if ( (clock ()-starttime) < (CLOCKS_PER_SEC/4) && !bCheckerBoard) sleep(2); // pause a bit if move is really quick    
+
+    //if ( (clock ()-starttime) < (CLOCKS_PER_SEC/4) && !bCheckerBoard) sleep(2); // pause a bit if move is really quick
 
     if (bCheckerBoard && nDoMove == NONE) nDoMove = 1;
     if (nDoMove != NONE)
-        {        
-        InBoard.DoMove( g_Movelist[1].Moves[ nDoMove ], MAKEMOVE );        
-        g_GameMoves[ g_nMoves++ ] = g_Movelist[1].Moves[nDoMove];        
-        g_GameMoves[ g_nMoves ].SrcDst = 0;        
+        {
+        InBoard.DoMove( g_Movelist[1].Moves[ nDoMove ], MAKEMOVE );
+        g_GameMoves[ g_nMoves++ ] = g_Movelist[1].Moves[nDoMove];
+        g_GameMoves[ g_nMoves ].SrcDst = 0;
         }
-    
+
     if (!g_bStopThinking) RunningDisplay( bestmove, 0 );
-    
+
     if (!bCheckerBoard) {
         //DrawBoard( InBoard );
         }
@@ -505,12 +508,13 @@ int ComputerMove( char cColor, CBoard &InBoard)
     }
 
 void RunningDisplay ( int bestMove, int bSearching )
-{    
+{
 	static int LastEval = 0, nps = 0;
 	static int LastBest;
 	int j = 0;
 	if ( bestMove != -1 ) {	LastBest = bestMove; }
 	bestMove = g_Movelist[1].Moves[ LastBest ].SrcDst;
+
 	if (!bCheckerBoard)
 		{
 		j+=sprintf(msg+j,"Red: %d   White: %d  ",  g_CBoard.nBlack, g_CBoard.nWhite);
@@ -522,27 +526,29 @@ void RunningDisplay ( int bestMove, int bSearching )
         if (computerLevel == 0) j+=sprintf(msg+j, "Level: Beginner  ");
 		else if (computerLevel == 1) j+=sprintf(msg+j, "Level: Advanced  ");
 		else if (computerLevel == 2) j+=sprintf(msg+j, "Level: Expert  ");
-        else j+=sprintf(msg+j, "Level: U/Def %d/%ds  ", g_MaxDepth, (int)fMaxSeconds);        
+        else j+=sprintf(msg+j, "Level: U/Def %d/%ds  ", g_MaxDepth, (int)fMaxSeconds);
 
 		if (bSearching) j+=sprintf (msg+j, _("(searching...)\n"));
 			else j+=sprintf (msg+j,"\n");
-		}	
+		}
 
     clock_t end;
     end = clock();
 
-    double elapsed = ((double) (end - starttime)) / CLOCKS_PER_SEC;     
+    double elapsed = ((double) (end - starttime)) / CLOCKS_PER_SEC;
 
     if ( elapsed > 0.0) nps = int ( (double(nodes) / elapsed) / 1000 ); else nps = 0;
 
 	if (abs (g_SearchEval) < 3000) LastEval = g_SearchEval;
 	char cCap = (bestMove>>12) ? 'x' : '-';
 	j+=sprintf( msg+j, _("Depth: %d/%d (%d/%d)   Eval: %d  "), SearchDepth, g_SelectiveDepth, g_SearchingMove, g_Movelist[1].nMoves, -LastEval);
-	if ( !bCheckerBoard ) j+=sprintf( msg+j, "\n" );	
+	if ( !bCheckerBoard ) j+=sprintf( msg+j, "\n" );
 
+	src_cmove = (FlipX (BoardLocTo32[bestMove&63])+1);
+	dst_cmove = (FlipX (BoardLocTo32[(bestMove>>6)&63])+1);
     j+=sprintf (msg+j, _("Move: %ld%c%ld Time: %.2fs  KNodes: %ld KN/Sec: %d"), FlipX (BoardLocTo32[bestMove&63])+1, cCap, FlipX (BoardLocTo32[(bestMove>>6)&63])+1, elapsed, (nodes/1000), nps);
-  
-	//DisplayText (msg);    
+
+	//DisplayText (msg);
 }
 
 void NewGame( )
@@ -551,7 +557,7 @@ void NewGame( )
 	g_nSelSquare = NONE;
 	g_nMoves = 0;
 	g_GameMoves[ g_nMoves ].SrcDst = 0;
-	g_cCompColor = WHITE;	
+	g_cCompColor = WHITE;
     msg[0] = '\0';
 }
 
@@ -623,17 +629,17 @@ void InitEngine(char *openingbookpath, char *endgame2pcpath, char *endgame3pcpat
     NewGame( );
     InitBitTables( );
     TEntry::Create_HashFunction( );
-    pBook = new COpeningBook;    
-	pBook->Load(openingbookpath);    
+    pBook = new COpeningBook;
+	pBook->Load(openingbookpath);
     LoadAllDatabases(endgame2pcpath, endgame3pcpath, endgame4pcpath);
     g_CBoard.StartPosition(1);
 }
 
 // Do Human Move
 void HMove(int src, int dst)
-{    
-    int MoveResult = SquareMove( g_CBoard, src, dst, g_CBoard.SideToMove);    
-    legalmove = MoveResult;    
+{
+    int MoveResult = SquareMove( g_CBoard, src, dst, g_CBoard.SideToMove);
+    legalmove = MoveResult;
 }
 
 
@@ -645,36 +651,36 @@ int CheckForGameOver()
     // check if computer (white) has lost
     if (g_CBoard.C.WP == 0)
     {
-        return BLACK;       // white has no pieces left - red wins        
+        return BLACK;       // white has no pieces left - red wins
     }
     else
     {
-        MoveList.FindMovesWhite( g_CBoard.Sqs, g_CBoard.C );  
+        MoveList.FindMovesWhite( g_CBoard.Sqs, g_CBoard.C );
         if (MoveList.nMoves == 0 && g_CBoard.SideToMove == WHITE)
-        {              
-            return BLACK;       // white has no moves available - red wins            
-        } 
-    }  
+        {
+            return BLACK;       // white has no moves available - red wins
+        }
+    }
 
     // check if human (red) has lost
     if (g_CBoard.C.BP == 0)
-    {                         
-        return WHITE;       // red has no pieces left - white wins        
+    {
+        return WHITE;       // red has no pieces left - white wins
     }
     else
     {
-        MoveList.FindMovesBlack( g_CBoard.Sqs, g_CBoard.C );  
+        MoveList.FindMovesBlack( g_CBoard.Sqs, g_CBoard.C );
         if (MoveList.nMoves == 0 && g_CBoard.SideToMove == BLACK)
-        {              
-            return WHITE;   // red has no moves available - white wins            
-        } 
+        {
+            return WHITE;   // red has no moves available - white wins
+        }
     }
     return 0;       // No winner yet
 }
 
 void DoComputerMove(char incol)
-{    
-    char cColor = incol;    
+{
+    char cColor = incol;
 
     if (incol == '1')
     {
@@ -683,21 +689,21 @@ void DoComputerMove(char incol)
     else
     {
         cColor = WHITE;
-    }   
-    g_bStopThinking = false; 
-    ComputerMove( cColor, g_CBoard );     
+    }
+    g_bStopThinking = false;
+    ComputerMove( cColor, g_CBoard );
 }
 
 // Restart Game
 void AINewGame( )
-{    
+{
     NewGame( );
-    g_CBoard.StartPosition( 1 );    
+    g_CBoard.StartPosition( 1 );
 }
 
 // Load a saved game from file
 void LoadGame ( char *sFilename )
-{    
+{
     FILE* pFile = fopen (sFilename, "rb");
     //if (pFile == NULL) return;
     int x = 0;
@@ -706,9 +712,9 @@ void LoadGame ( char *sFilename )
     g_buffer[x-1] = 0;
 
     NewGame();
-    g_CBoard.FromPDN( g_buffer );    
+    g_CBoard.FromPDN( g_buffer );
     fclose (pFile);
-    ReplayGame ( 1000, g_CBoard);        
+    ReplayGame ( 1000, g_CBoard);
 }
 
 // Save the game to a file
@@ -722,130 +728,130 @@ void SaveGame( char *sFilename)
     {
         cout << "Error saving game" << endl;
     }
- 
+
     fclose( pFile );
 }
 
 // Get the game position (FEN format)
-void CopyToFEN(char* g_buffer) 
+void CopyToFEN(char* g_buffer)
 {
     g_CBoard.ToFen( g_buffer );
-} 
+}
 
 // Set the game position from a FEN format passed in by python calling program
-void PasteFromFEN(char* g_buffer) 
-{   
+void PasteFromFEN(char* g_buffer)
+{
     if (g_CBoard.FromFen( g_buffer ))
-    {                
+    {
         NewGame( );
         g_StartBoard = g_CBoard;
-    }        
+    }
 }
 
 // Get the game position (PDN format)
 // Pass it back to python calling program so it can be copied to the clipboard
 void CopyPDNtoClipBoard(char* g_buffer)
 {
-    g_CBoard.ToPDN( g_buffer );   
+    g_CBoard.ToPDN( g_buffer );
 }
-	
-void PasteFromPDN(char* g_buffer) 
-{    
-    NewGame( );
-	g_CBoard.FromPDN( g_buffer );       
-}	
 
-void MovePrev() 
+void PasteFromPDN(char* g_buffer)
+{
+    NewGame( );
+	g_CBoard.FromPDN( g_buffer );
+}
+
+void MovePrev()
 {
     gameover = 0;
-    g_bStopThinking = true;        
+    g_bStopThinking = true;
     if (g_nMoves > 0)
     {
         g_nMoves--;
-        ReplayGame( g_nMoves, g_CBoard);        
-    }    
+        ReplayGame( g_nMoves, g_CBoard);
+    }
 }
 
-void MoveStart() 
+void MoveStart()
 {
     gameover = 0;
-    g_bStopThinking = true; 
+    g_bStopThinking = true;
     g_nMoves = 0;
-    ReplayGame( g_nMoves, g_CBoard );    
+    ReplayGame( g_nMoves, g_CBoard );
 }
 
-void MoveEnd() 
+void MoveEnd()
 {
-    g_bStopThinking = true; 
+    g_bStopThinking = true;
     g_nMoves = 1000;
-    ReplayGame( g_nMoves, g_CBoard );       
+    ReplayGame( g_nMoves, g_CBoard );
 }
 
-void MoveNext() 
+void MoveNext()
 {
-    g_bStopThinking = true; 
+    g_bStopThinking = true;
     g_nMoves++;
-    ReplayGame( g_nMoves, g_CBoard );        
+    ReplayGame( g_nMoves, g_CBoard );
 }
-   
-void Retract() 
+
+void Retract()
 {
     gameover = 0;
-    g_bStopThinking = true; 
+    g_bStopThinking = true;
     if (g_nMoves < 0) g_nMoves = 0;
     g_nMoves-=2;
-    ReplayGame( g_nMoves, g_CBoard );    
+    ReplayGame( g_nMoves, g_CBoard );
 }
 
-void actionOB(int action, char *openingbookpath) 
-{    
+void actionOB(int action, char *openingbookpath)
+{
 
     // '2' - Add/Adjust to being good for red
     if (action == 2)
-    {        
-        pBook->AddPosition( g_CBoard, -1, false); 
+    {
+        pBook->AddPosition( g_CBoard, -1, false);
     }
 
     // '3' - Add Current Board position / adjust towards '0'
     if (action == 3)
-    {        
-        pBook->AddPosition( g_CBoard, 0, false); 
+    {
+        pBook->AddPosition( g_CBoard, 0, false);
     }
 
     // '4' - Add/Adjust to being good for white
     if (action == 4)
-    {        
-        pBook->AddPosition( g_CBoard, 1, false); 
+    {
+        pBook->AddPosition( g_CBoard, 1, false);
     }
 
     // '6' - Remove Position
     if (action == 6)
-    {        
+    {
         pBook->RemovePosition( g_CBoard, false);
     }
 
     // 'C' - Clear Opening Book in memory
     if (int(action) == 7)
-    {        
-        delete pBook; 
-        pBook = new COpeningBook;        
+    {
+        delete pBook;
+        pBook = new COpeningBook;
         sprintf ( msg, "Book Cleared");
     }
 
-    // 'S' - Save Opening Book 
+    // 'S' - Save Opening Book
     if (action == 8)
-    {        
-        pBook->Save(openingbookpath);              
+    {
+        pBook->Save(openingbookpath);
     }
-    
+
 }
 
-void SetBoard(int i, int piece) 
-{    
+void SetBoard(int i, int piece)
+{
     g_CBoard.Sqs[i] = piece;
     g_CBoard.SetFlags( );
 	g_StartBoard = g_CBoard;
-	g_nMoves = 0;    
+	g_nMoves = 0;
 }
 
 void SetSideToMove(int stm)
@@ -858,7 +864,7 @@ char* GetBoardSquares()
     g_sideToMove = g_CBoard.SideToMove;
     char *squares=g_CBoard.Sqs;
     return squares;
-} 
+}
 
 int flip(int src)
 {
@@ -873,3 +879,7 @@ int flip(int src)
 }
 
 
+void GetComputerMove(int* src, int* dst){
+	*src = src_cmove;
+	*dst = dst_cmove;
+}
