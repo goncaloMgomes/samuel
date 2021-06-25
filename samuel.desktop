@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Name[it]=Samuel
+Name=Samuel
+Comment[fr]=Samuel est un jeu de dames pour le bureau Gnome
+Comment[it]=Samuel è un gioco di dama per il desktop Gnome
+Comment=Samuel is a draughts program for the Gnome desktop
+GenericName[fr]=Jeu de dames
+GenericName[it]=Gioco della dama
+GenericName=Draughts Game
+Icon[it]=samuel.png
+Icon=samuel.png
+Exec=samuel
+Terminal=false
+Categories=GNOME;Game;BoardGame;
